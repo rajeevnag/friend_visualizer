@@ -27,6 +27,74 @@ def get_real_username(user_name):
     user_name = search_result[choice-1].screen_name
     return user_name
 
+def get_mutual_connections(friends,friend_connections):
+    #friends is set containing usernames of people i'm following
+    #friend_connections is dictionary mapping usernames of people i'm following to a set of our mutual friends
+    from selenium import webdriver
+    from selenium.webdriver.common.action_chains import ActionChains
+    from webdriver_manager.chrome import ChromeDriverManager
+    import time
+    import sys
+
+    driver = webdriver.Chrome(ChromeDriverManager().install())
+
+    #login to twitter first
+    
+    login_url = 'https://twitter.com/login' 
+    driver.get(login_url)
+
+    breakpoint()
+    username_xpath = '//*[@id="react-root"]/div/div/div[2]/main/div/div/form/div/div[1]/label/div/div[2]/div/input'
+    password_xpath = '//*[@id="react-root"]/div/div/div[2]/main/div/div/form/div/div[2]/label/div/div[2]/div/input'
+    login_button_xpath = '//*[@id="react-root"]/div/div/div[2]/main/div/div/form/div/div[3]/div/div'
+
+    username_button = driver.find_element_by_xpath(username_xpath)
+    password_button = driver.find_element_by_xpath(password_xpath)
+    login_button = driver.find_element_by_xpath(login_button_xpath)
+
+    print('input username to log in to twitter')
+    real_username = input()
+
+    print('input password to log in to twitter')
+    real_password = input()
+
+    
+    username_button.send_keys(real_username)
+    time.sleep(1)
+    password_button.send_keys(real_password)
+    time.sleep(2)
+
+    login_button.click()
+
+
+
+    try:
+        for friend in friends:
+            
+            #url for user search results
+            url = 'https://twitter.com/{username}/following'.format(username=friend)
+            driver.get(url)
+            time.sleep(1) #sleep for 1 second to allow page to load
+            breakpoint()
+            try:
+                breakpoint()
+
+            except:
+                print('Error: ')
+                print(sys.exc_info()[0])
+                print()
+                breakpoint()
+
+            print('hi')
+            print(friend)
+            breakpoint()
+
+        driver.close()
+    except:
+        driver.close()
+        print('error')
+
+
 def analyze_user(user_name):
 
     #data structures needed:
@@ -54,21 +122,11 @@ def analyze_user(user_name):
 
 
     friend_connections = dict() #dictionary that stores username and all mutual friends
-    import time
-    for friend in friends: #for each friend
-        mutual_friends = set()
-        time.sleep(5)
-        friend_info = Twitter.friends(friend)
-        for info in friend_info:
-            if info.screen_name in friends: #if we have a mutual friend
-                mutual_friends.add(info.screen_name)
-        friend_connections[friend] = mutual_friends
+
+    get_mutual_connections(friends,friend_connections)
+
 
         
-        
-
-    breakpoint()
-    x = 4
 
 
 import tweepy
