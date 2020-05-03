@@ -43,7 +43,7 @@ def get_mutual_connections(friends,friend_connections):
     login_url = 'https://twitter.com/login' 
     driver.get(login_url)
 
-    breakpoint()
+    
     username_xpath = '//*[@id="react-root"]/div/div/div[2]/main/div/div/form/div/div[1]/label/div/div[2]/div/input'
     password_xpath = '//*[@id="react-root"]/div/div/div[2]/main/div/div/form/div/div[2]/label/div/div[2]/div/input'
     login_button_xpath = '//*[@id="react-root"]/div/div/div[2]/main/div/div/form/div/div[3]/div/div'
@@ -52,12 +52,16 @@ def get_mutual_connections(friends,friend_connections):
     password_button = driver.find_element_by_xpath(password_xpath)
     login_button = driver.find_element_by_xpath(login_button_xpath)
 
-    print('input username to log in to twitter')
-    real_username = input()
+    # print('Getting data from Twitter is not possible without logging in first. Please log in to continue')
+
+    # print('input username to log in to twitter')
+    # real_username = input()
+
+    real_username = 'dev12345671'
 
     print('input password to log in to twitter')
     real_password = input()
-
+    
     
     username_button.send_keys(real_username)
     time.sleep(1)
@@ -68,31 +72,18 @@ def get_mutual_connections(friends,friend_connections):
 
 
 
-    try:
-        for friend in friends:
-            
-            #url for user search results
-            url = 'https://twitter.com/{username}/following'.format(username=friend)
-            driver.get(url)
-            time.sleep(1) #sleep for 1 second to allow page to load
-            breakpoint()
-            try:
-                breakpoint()
+    from bs4 import BeautifulSoup as bs
+    import twint
+    breakpoint()
+    friends = ['jeev3ss','calebkru6']
 
-            except:
-                print('Error: ')
-                print(sys.exc_info()[0])
-                print()
-                breakpoint()
+    for friend in friends:
+        c = twint.Config()
+        c.Username = friend
+        c.Output = 'following.txt'
+        twint.run.Following(c)
+        breakpoint()
 
-            print('hi')
-            print(friend)
-            breakpoint()
-
-        driver.close()
-    except:
-        driver.close()
-        print('error')
 
 
 def analyze_user(user_name):
@@ -114,6 +105,8 @@ def analyze_user(user_name):
     #first get set of all friends I have
     friends = set() #all of my friends (contains username, not actual name to avoid duplicate names)
     
+
+
     #assign set of friends and also dictionary mapping username to name
     for friend in friends_info:
         if friend.screen_name not in friends:
