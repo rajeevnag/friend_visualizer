@@ -27,62 +27,54 @@ def get_real_username(user_name):
     user_name = search_result[choice-1].screen_name
     return user_name
 
-def get_mutual_connections(friends,friend_connections):
+def get_mutual_connections(friends,friend_connections,choice):
     #friends is set containing usernames of people i'm following
     #friend_connections is dictionary mapping usernames of people i'm following to a set of our mutual friends
-    from selenium import webdriver
-    from selenium.webdriver.common.action_chains import ActionChains
-    from webdriver_manager.chrome import ChromeDriverManager
-    import time
-    import sys
 
-    driver = webdriver.Chrome(ChromeDriverManager().install())
-
-    #login to twitter first
-    
-    login_url = 'https://twitter.com/login' 
-    driver.get(login_url)
-
-    
-    username_xpath = '//*[@id="react-root"]/div/div/div[2]/main/div/div/form/div/div[1]/label/div/div[2]/div/input'
-    password_xpath = '//*[@id="react-root"]/div/div/div[2]/main/div/div/form/div/div[2]/label/div/div[2]/div/input'
-    login_button_xpath = '//*[@id="react-root"]/div/div/div[2]/main/div/div/form/div/div[3]/div/div'
-
-    username_button = driver.find_element_by_xpath(username_xpath)
-    password_button = driver.find_element_by_xpath(password_xpath)
-    login_button = driver.find_element_by_xpath(login_button_xpath)
-
-    # print('Getting data from Twitter is not possible without logging in first. Please log in to continue')
-
-    # print('input username to log in to twitter')
-    # real_username = input()
-
-    real_username = 'dev12345671'
-
-    print('input password to log in to twitter')
-    real_password = input()
-    
-    
-    username_button.send_keys(real_username)
-    time.sleep(1)
-    password_button.send_keys(real_password)
-    time.sleep(2)
-
-    login_button.click()
-
-
-
-    from bs4 import BeautifulSoup as bs
+    import os.path
+    from os import path
     import twint
-    breakpoint()
-    friends = ['jeev3ss','calebkru6']
+
 
     for friend in friends:
+
+        if path.exists('direct_connections.txt'):#clear file 
+                os.remove('direct_connections.txt')
+        
+        open('direct_connections.txt', 'w+').close()
+
+        #get followers or people following user
         c = twint.Config()
         c.Username = friend
-        c.Output = 'following.txt'
-        twint.run.Following(c)
-        breakpoint()
+        c.Output = 'direct_connections.txt'
+        
+        if choice == 'following':
+            twint.run.Following(c)
+        else:
+            twint.run.Followers(c)
+        
+        with open('direct_connections.txt','r+') as file:
+            file.seek(0) #reset file position 
+            connections = file.readlines()
+            for connection in connections:
+                print(connection)
+                breakpoint()
+        
+
+
+    breakpoint()
+    # for friend in friends:
+    #     c = twint.Config()
+    #     c.Username = friend
+    #     c.Output = 'direct_connection.txt'
+
+    
+        
+    #     if choice == 'following':
+    #         twint.run.Following(c)
+    #     else:
+    #         twint.run.Followers(c)
+
 
 
 
@@ -97,7 +89,19 @@ def analyze_user(user_name):
 
     #verify user exists
     user_name = get_real_username(user_name)
-    friends_info = Twitter.friends(user_name)
+
+    print('Would you like to analyze who ' + user_name + ' is following or their followers?')
+
+    choice = input()
+    while choice != 'following' and choice != 'followers':
+        print('invalid choice, pick again')
+        choice = input()
+    
+    if choice == 'following':
+        friends_info = Twitter.friends(user_name)
+    else:
+        friends_info = Twitter.followers(user_name)
+
     
     #dictionary for mapping username to name
     friends_username = dict()
@@ -105,18 +109,15 @@ def analyze_user(user_name):
     #first get set of all friends I have
     friends = set() #all of my friends (contains username, not actual name to avoid duplicate names)
     
-
-
     #assign set of friends and also dictionary mapping username to name
     for friend in friends_info:
         if friend.screen_name not in friends:
             friends.add(friend.screen_name)
             friends_username[friend.screen_name] = friend.name
 
-
     friend_connections = dict() #dictionary that stores username and all mutual friends
 
-    get_mutual_connections(friends,friend_connections)
+    get_mutual_connections(friends,friend_connections,choice)
 
 
         
