@@ -46,19 +46,26 @@ def get_mutual_connections(friends,friend_connections,choice):
         #get followers or people following user
         c = twint.Config()
         c.Username = friend
+        c.Format = 'Name {name} Username {username}'
         c.Output = 'direct_connections.txt'
-        
+
         if choice == 'following':
             twint.run.Following(c)
         else:
             twint.run.Followers(c)
-        
+
         with open('direct_connections.txt','r+') as file:
             file.seek(0) #reset file position 
             connections = file.readlines()
+            current_connections = set()
             for connection in connections:
-                print(connection)
-                breakpoint()
+                if connection in friends and connection not in current_connections:
+                    current_connections.add(connection) 
+
+            friend_connections[friend] = current_connections
+            
+            
+
         
 
 
