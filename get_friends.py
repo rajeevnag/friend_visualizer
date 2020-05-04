@@ -36,13 +36,11 @@ def get_mutual_connections(friends,friend_connections,choice):
     import os.path
     from os import path
     import twint
-    
+    import time
         
 
-    api_counter = 0 #counter for number of api calls not including initial one
-
     for friend in friends:
-
+        time.sleep(30)
         if path.exists('direct_connections.txt'):#clear file 
                 os.remove('direct_connections.txt')
         
@@ -63,22 +61,10 @@ def get_mutual_connections(friends,friend_connections,choice):
             connections = file.readlines()
             current_connections = list()
             
-            if connections == []:#if connections doesn't contain anything, use tweepy to see if it was just an error from twint
-                if api_counter < 5:
-                    if choice == 'following':
-                        list_of_friends = Twitter.friends(friend)
-                    else:
-                        list_of_friends = Twitter.followers(friend)
-                        
-                    for user in list_of_friends:
-                        if user.screen_name in friends and user.screen_name not in current_connections:
-                            current_connections.append(user.screen_name)
-                    api_counter += 1
-            else:
-                for connection in connections:
-                    connection = connection.replace('\n','')
-                    if connection in friends and connection not in current_connections:
-                        current_connections.append(connection) 
+            for connection in connections:
+                connection = connection.replace('\n','')
+                if connection in friends and connection not in current_connections:
+                    current_connections.append(connection) 
 
             
             friend_connections[friend] = current_connections
