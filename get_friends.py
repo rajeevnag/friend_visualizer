@@ -27,6 +27,8 @@ def get_real_username(user_name):
     user_name = search_result[choice-1].screen_name
     return user_name
 
+
+
 def get_mutual_connections(friends,friend_connections,choice):
     #friends is set containing usernames of people i'm following
     #friend_connections is dictionary mapping usernames of people i'm following to a set of our mutual friends
@@ -34,7 +36,10 @@ def get_mutual_connections(friends,friend_connections,choice):
     import os.path
     from os import path
     import twint
+    
+        
 
+    api_counter = 0 #counter for number of api calls not including initial one
 
     for friend in friends:
 
@@ -55,32 +60,36 @@ def get_mutual_connections(friends,friend_connections,choice):
             twint.run.Followers(c)
 
         with open('direct_connections.txt','r+') as file:
-            file.seek(0) #reset file position 
             connections = file.readlines()
-            current_connections = set()
-            for connection in connections:
-                if connection in friends and connection not in current_connections:
-                    current_connections.add(connection) 
+            current_connections = list()
+            
+            if connections == []:#if connections doesn't contain anything, use tweepy to see if it was just an error from twint
+                if api_counter < 5:
+                    if choice == 'following':
+                        list_of_friends = Twitter.friends(friend)
+                    else:
+                        list_of_friends = Twitter.followers(friend)
+                        
+                    for user in list_of_friends:
+                        if user.screen_name in friends and user.screen_name not in current_connections:
+                            current_connections.append(user.screen_name)
+                    api_counter += 1
+            else:
+                for connection in connections:
+                    connection = connection.replace('\n','')
+                    if connection in friends and connection not in current_connections:
+                        current_connections.append(connection) 
 
+            
             friend_connections[friend] = current_connections
-            
-            
-
         
 
 
-    breakpoint()
-    # for friend in friends:
-    #     c = twint.Config()
-    #     c.Username = friend
-    #     c.Output = 'direct_connection.txt'
+def write_connections(friend_connections):
+    import json
+    with open('mutual_connections.txt','w') as file:
+        json.dump(friend_connections,file)
 
-    
-        
-    #     if choice == 'following':
-    #         twint.run.Following(c)
-    #     else:
-    #         twint.run.Followers(c)
 
 
 
@@ -125,6 +134,11 @@ def analyze_user(user_name):
     friend_connections = dict() #dictionary that stores username and all mutual friends
 
     get_mutual_connections(friends,friend_connections,choice)
+
+    #write all mutual connections to a file
+    write_connections(friend_connections)
+
+
 
 
         
