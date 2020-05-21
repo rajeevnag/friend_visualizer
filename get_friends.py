@@ -38,7 +38,6 @@ def get_mutual_connections(friends,friend_connections,choice):
     import twint
     import time
         
-
     for friend in friends:
         time.sleep(30)
         if path.exists('direct_connections.txt'):#clear file 
@@ -87,8 +86,6 @@ def analyze_user(user_name):
     # dictionary mapping username to name  (probably needed)
     # dictionary mapping username to set of mutual friends
 
-
-
     #verify user exists
     user_name = get_real_username(user_name)
 
@@ -126,13 +123,9 @@ def analyze_user(user_name):
 
 
 
-
-        
-
-
 import tweepy
 
-consumer_key= 'FvflCo1aIlcLbeFfq9unJ9rli'
+consumer_key= 'FvflCo1aIlcLbeFfq9unJ9rli'#removed for privacy
 consumer_secret = 'MRMYvUFeTgVGCwktHfPvPt3EAseDIfMZfzCwrZ0tIvagC6hWat'
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 
@@ -143,11 +136,13 @@ auth.set_access_token(access_token, access_token_secret)
 
 Twitter = tweepy.API(auth,wait_on_rate_limit=True)
 
-
+import os
 while True:
     print("Input username you'd like to analyze")
     user_name = input()
     analyze_user(user_name)
+    
+    os.system('python3 make_graph.py')
     print("Would you like to analyze another user? (y/n)")
     answer = input()
     while answer != 'y' and answer != 'n':
